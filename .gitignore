@@ -2,3 +2,4 @@ venv
 *.pyc
 instance/
 instance/:memory
+__pycache__
