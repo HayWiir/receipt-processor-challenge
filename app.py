@@ -18,17 +18,15 @@ points = {}
 '''
 Setting up SQLite Database and Flask App
 '''
-
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-engine = create_engine(
-    "sqlite://", 
-    connect_args={"check_same_thread": False}, 
-    poolclass=StaticPool
-)
+# engine = create_engine(
+#     "sqlite://", 
+#     connect_args={"check_same_thread": False}, 
+#     poolclass=StaticPool
+# )
 
 
 db.init_app(app)
