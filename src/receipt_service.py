@@ -6,6 +6,10 @@ import math
 
 
 class ReceiptService:
+    """
+    Initialized with SQLAlchemy object for DB access
+    """
+
     def __init__(self, db):
         self.db = db
         self.retailer = None
@@ -15,6 +19,10 @@ class ReceiptService:
         self.total = None
         self.items = []
         self.points = 0
+
+    """
+    Parses and validates input JSON receipt data.
+    """
 
     def parse_receipt(self, receipt_data):
         self.retailer = receipt_data["retailer"]
@@ -50,6 +58,11 @@ class ReceiptService:
         if math.fsum(prices_list) != float(self.total):
             raise ValueError("Inconsistency in items price and receipt total")
 
+    """
+    Adds data to SQLite DB.
+    Raises errors in case of DB validation errors.
+    """
+
     def add_receipt(self):
         self.receipt_id = str(uuid.uuid4())
 
@@ -75,6 +88,10 @@ class ReceiptService:
             self.db.session.commit()
 
         return self.receipt_id
+
+    """
+    Calculates points to award based on rules
+    """
 
     def calculate_points(self):
         # Retailer Name
@@ -106,6 +123,10 @@ class ReceiptService:
         self.db.session.commit()
 
         return self.points
+
+    """
+    Gets points for provided receipt_id (if exits in DB)
+    """
 
     def get_points(self, receipt_id):
         self.receipt_id = receipt_id

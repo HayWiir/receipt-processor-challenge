@@ -12,7 +12,7 @@ class Receipt(db.Model):
     total = db.Column(db.Text, nullable=False)
     points = db.Column(db.Integer, nullable=True)
 
-    def __repr__(self):
+    def __repr__(self):  # For debugging
         return f"<Receipt {self.id} for {self.retailer}>"
 
     @validates("retailer")
@@ -34,7 +34,7 @@ class Item(db.Model):
     short_description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Text, nullable=False)
 
-    def __repr__(self):
+    def __repr__(self):  # For debugging
         return f"<Item {self.id} for Receipt {self.receipt_id}>"
 
     @validates("short_description")
