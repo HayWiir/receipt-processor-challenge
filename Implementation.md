@@ -35,5 +35,5 @@ I used Python's unittest module to write tests. They test multiple validation fu
 The tests can be run from the root directory with this command:
 
 ```
-python -m unittest tests/test*  
+python3 -m unittest tests/test*  
 ```
