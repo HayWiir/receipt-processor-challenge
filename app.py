@@ -49,7 +49,7 @@ def process_receipt():
         return jsonify({"id": receipt_id, "points": points}), 200
 
     except Exception as e:
-        return jsonify({"Error": f"{str(e)}"}), 400
+        return jsonify({"Error": f"{str(e)}"}), 404
 
 
 """
