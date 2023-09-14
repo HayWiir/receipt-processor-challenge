@@ -1,4 +1,3 @@
-# from model.db import db
 from model.schema import Receipt, Item, init_db
 
 import uuid

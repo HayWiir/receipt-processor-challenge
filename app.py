@@ -1,15 +1,7 @@
-import os
 from flask import Flask, request, jsonify, url_for
 
-from sqlalchemy.sql import func
-from sqlalchemy import create_engine
-from sqlalchemy.pool import StaticPool
-
-import uuid
-from datetime import time, datetime
 
 from model.db import db
-from model.schema import Receipt, Item, init_db
 from src.receipt_service import ReceiptService
 
 
