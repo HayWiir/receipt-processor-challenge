@@ -37,65 +37,45 @@ with app.app_context():
 
 '''
 Process Receipts Endpoint
-TODO: Explain DB Logic
+This route does the following:
+1. Get the input data in JSON format
+2. Perform validation and raise exception in case of errors
+3. Calculate points for valid data
+4. Add data to SQLite DB
 '''
 @app.route('/receipts/process', methods=['POST'])
 def process_receipt():
     receipt_data = request.json
-
-    #validate data
-
     receipt_service = ReceiptService(db)
 
     try:
         receipt_service.parse_receipt(receipt_data=receipt_data)
         receipt_id = receipt_service.add_receipt()
-        #calc points
+        points = receipt_service.calculate_points()
 
-        return jsonify({"id": receipt_id}), 200
+        return jsonify({"id": receipt_id, "points": points}), 200
 
     except Exception as e:
         return jsonify({"Error": f"{str(e)}"}), 400
 
+'''
+Get Points Endpoint
+This route does the following:
+1. Get the input receipt_id in JSON format
+2. Check if receipt_id exists in DB
+3. Return points calculated for the recipt or raise error if no receipt exists. 
+'''
+@app.route('/receipts/<string:receipt_id>/points', methods=['GET'])
+def get_points(receipt_id):
 
+    receipt_service = ReceiptService(db)
 
-    # receipt_id = str(uuid.uuid4())
-    # retailer = receipt_data['retailer']
-    # purchase_timestamp = f"{receipt_data['purchaseDate']}T{receipt_data['purchaseTime']}"
-    # purchase_date = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').date()
-    # purchase_time = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').time()
-    # total = receipt_data['total']
-    # items = receipt_data['items']
+    try:
+        points = receipt_service.get_points(receipt_id)
+        return jsonify({"points": points}), 200
 
-    # receipt = Receipt(id=receipt_id,
-    #                        retailer=retailer,
-    #                        purchase_date=purchase_date,
-    #                        purchase_time=purchase_time,
-    #                        total=total)  
-    # db.session.add(receipt)
-    # db.session.commit()  
-
-    # for item in items:
-    #     item_id = str(uuid.uuid4())
-    #     short_description = item['shortDescription']
-    #     price = item['price']
-
-    #     item_data = Item(id=item_id,
-    #                     receipt_id=receipt_id,
-    #                     short_description=short_description, 
-    #                     price=price)
-        
-    #     db.session.add(item_data)
-    #     db.session.commit()
-
-    
-
-
-
-
-
-    #TODO test
-    return jsonify({"success": receipt_data["retailer"]})
+    except Exception as e:
+        return jsonify({"Error": f"{str(e)}"}), 400
 
 
 if __name__ == '__main__':

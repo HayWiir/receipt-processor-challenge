@@ -3,6 +3,7 @@ from model.schema import Receipt, Item, init_db
 
 import uuid
 from datetime import time, datetime
+import math
 
 class ReceiptService:
 
@@ -14,6 +15,7 @@ class ReceiptService:
         self.purchase_time = None
         self.total = None
         self.items = []
+        self.points = 0
 
 
     def parse_receipt(self, receipt_data):
@@ -31,7 +33,7 @@ class ReceiptService:
         self.total = receipt_data['total']
         
         self.items = []
-        current_total = 0
+        prices_list = []
         for item in receipt_data['items']:
             short_description = item['shortDescription']
             price = item['price']
@@ -40,15 +42,13 @@ class ReceiptService:
                                'price': price})
             
             #Validate item prices with receipt total
-            current_total += float(price) 
+            prices_list.append(float(price))
 
         if not self.items:
             raise ValueError("Failed items validation")  
 
-        if current_total != float(self.total):
+        if math.fsum(prices_list) != float(self.total):
             raise ValueError("Inconsistency in items price and receipt total")  
-
-
 
     def add_receipt(self):
         self.receipt_id = str(uuid.uuid4())
@@ -71,4 +71,48 @@ class ReceiptService:
             self.db.session.commit()
 
         return self.receipt_id    
+    
+    def calculate_points(self):
+        # Retailer Name
+        self.points += sum(c.isalnum() for c in self.retailer)
+
+        # Round Dollar Amount
+        self.points += 50 if float(self.total).is_integer() else 0
+
+        # Multiple of 0.25
+        self.points += 25 if float(self.total) % 0.25 == 0 else 0
+        
+        # Pair items
+        self.points += (len(self.items)//2)*5
+
+         
+        # Trimmed length of item description
+        for item in self.items:
+            short_description_trimmed_len = len(item['short_description'].strip())
+            if short_description_trimmed_len%3==0:
+                self.points +=  math.ceil( float(item['price']) * 0.2 )       
+         
+        # Purchase day is odd
+        self.points += 6 if self.purchase_timestamp.day % 2 != 0 else 0
+        
+        # If purchase between 14:00 and 16:00 
+        self.points += 10 if time(14) < self.purchase_timestamp.time() < time(16) else 0
+
+        receipt = Receipt.query.filter_by(id=self.receipt_id).first()
+        receipt.points = self.points
+        self.db.session.commit()
+
+        return self.points
+    
+    def get_points(self, receipt_id):
+        self.receipt_id = receipt_id
+        receipt = Receipt.query.filter_by(id=self.receipt_id).first()
+        if receipt:
+            return receipt.points
+        else:
+            raise ValueError("receipt_id does not exist")
+
+
+
+
         

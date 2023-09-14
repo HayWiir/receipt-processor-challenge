@@ -9,13 +9,14 @@ class Receipt(db.Model):
     purchase_time = db.Column(db.Time(), nullable=False)
     items = db.relationship('Item', backref='receipt', lazy=True)
     total = db.Column(db.Text, nullable=False)
+    points = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return f'<Receipt {self.id} for {self.retailer}>'
     
     @validates('retailer')
     def validate_retailer(self, key, address):
-        if not address or not re.match(r"^\S+$", address):
+        if not address or not re.match(r"^.*\S.*$", address):
             raise ValueError("Failed retailer validation")
         return address
     
@@ -47,6 +48,8 @@ class Item(db.Model):
         if not address or not re.match(r"\d+\.\d{2}$", address):
             raise ValueError("Failed price validation")
         return address
+
+
 
 
 def init_db():
