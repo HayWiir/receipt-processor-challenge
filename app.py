@@ -8,12 +8,11 @@ from sqlalchemy.pool import StaticPool
 import uuid
 from datetime import time, datetime
 
-from database.db import db
-from database.schema import Receipt, Item, init_db
+from model.db import db
+from model.schema import Receipt, Item, init_db
+from src.receipt_service import ReceiptService
 
 
-receipts = {}
-points = {}
 
 '''
 Setting up SQLite Database and Flask App
@@ -46,34 +45,48 @@ def process_receipt():
 
     #validate data
 
-    receipt_id = str(uuid.uuid4())
-    retailer = receipt_data['retailer']
-    purchase_timestamp = f"{receipt_data['purchaseDate']}T{receipt_data['purchaseTime']}"
-    purchase_date = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').date()
-    purchase_time = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').time()
-    total = receipt_data['total']
-    items = receipt_data['items']
+    receipt_service = ReceiptService(db)
 
-    receipt = Receipt(id=receipt_id,
-                           retailer=retailer,
-                           purchase_date=purchase_date,
-                           purchase_time=purchase_time,
-                           total=total)  
-    db.session.add(receipt)
-    db.session.commit()  
+    try:
+        receipt_service.parse_receipt(receipt_data=receipt_data)
+        receipt_id = receipt_service.add_receipt()
+        #calc points
 
-    for item in items:
-        item_id = str(uuid.uuid4())
-        short_description = item['shortDescription']
-        price = item['price']
+        return jsonify({"id": receipt_id}), 200
 
-        item_data = Item(id=item_id,
-                        receipt_id=receipt_id,
-                        short_description=short_description, 
-                        price=price)
+    except Exception as e:
+        return jsonify({"Error": f"{str(e)}"}), 400
+
+
+
+    # receipt_id = str(uuid.uuid4())
+    # retailer = receipt_data['retailer']
+    # purchase_timestamp = f"{receipt_data['purchaseDate']}T{receipt_data['purchaseTime']}"
+    # purchase_date = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').date()
+    # purchase_time = datetime.strptime(purchase_timestamp, '%Y-%m-%dT%H:%M').time()
+    # total = receipt_data['total']
+    # items = receipt_data['items']
+
+    # receipt = Receipt(id=receipt_id,
+    #                        retailer=retailer,
+    #                        purchase_date=purchase_date,
+    #                        purchase_time=purchase_time,
+    #                        total=total)  
+    # db.session.add(receipt)
+    # db.session.commit()  
+
+    # for item in items:
+    #     item_id = str(uuid.uuid4())
+    #     short_description = item['shortDescription']
+    #     price = item['price']
+
+    #     item_data = Item(id=item_id,
+    #                     receipt_id=receipt_id,
+    #                     short_description=short_description, 
+    #                     price=price)
         
-        db.session.add(item_data)
-        db.session.commit()
+    #     db.session.add(item_data)
+    #     db.session.commit()
 
     
 
