@@ -5,17 +5,16 @@ from model.db import db
 from src.receipt_service import ReceiptService
 
 
-
-'''
+"""
 Setting up SQLite Database and Flask App
-'''
+"""
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # engine = create_engine(
-#     "sqlite://", 
-#     connect_args={"check_same_thread": False}, 
+#     "sqlite://",
+#     connect_args={"check_same_thread": False},
 #     poolclass=StaticPool
 # )
 
@@ -27,15 +26,17 @@ with app.app_context():
     db.create_all()
 
 
-'''
+"""
 Process Receipts Endpoint
 This route does the following:
 1. Get the input data in JSON format
 2. Perform validation and raise exception in case of errors
 3. Calculate points for valid data
 4. Add data to SQLite DB
-'''
-@app.route('/receipts/process', methods=['POST'])
+"""
+
+
+@app.route("/receipts/process", methods=["POST"])
 def process_receipt():
     receipt_data = request.json
     receipt_service = ReceiptService(db)
@@ -50,16 +51,18 @@ def process_receipt():
     except Exception as e:
         return jsonify({"Error": f"{str(e)}"}), 400
 
-'''
+
+"""
 Get Points Endpoint
 This route does the following:
 1. Get the input receipt_id in JSON format
 2. Check if receipt_id exists in DB
 3. Return points calculated for the recipt or raise error if no receipt exists. 
-'''
-@app.route('/receipts/<string:receipt_id>/points', methods=['GET'])
-def get_points(receipt_id):
+"""
 
+
+@app.route("/receipts/<string:receipt_id>/points", methods=["GET"])
+def get_points(receipt_id):
     receipt_service = ReceiptService(db)
 
     try:
@@ -70,5 +73,5 @@ def get_points(receipt_id):
         return jsonify({"Error": f"{str(e)}"}), 400
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=80)
