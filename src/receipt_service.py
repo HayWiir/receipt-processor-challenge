@@ -1,4 +1,4 @@
-from model.schema import Receipt, Item, init_db
+from model.schema import Receipt, Item
 
 import uuid
 from datetime import time, datetime

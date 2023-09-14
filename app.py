@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, url_for
 
 
-from model.db import db
+from model.db import db, initialize_db
 from src.receipt_service import ReceiptService
 
 
@@ -12,16 +12,9 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# engine = create_engine(
-#     "sqlite://",
-#     connect_args={"check_same_thread": False},
-#     poolclass=StaticPool
-# )
-
-
-db.init_app(app)
 
 with app.app_context():
+    initialize_db(app)
     db.drop_all()
     db.create_all()
 
@@ -46,10 +39,10 @@ def process_receipt():
         receipt_id = receipt_service.add_receipt()
         points = receipt_service.calculate_points()
 
-        return jsonify({"id": receipt_id, "points": points}), 200
+        return jsonify({"id": receipt_id}), 200
 
     except Exception as e:
-        return jsonify({"Error": f"{str(e)}"}), 404
+        return jsonify({"Error": f"{str(e)}"}), 400
 
 
 """
@@ -70,7 +63,7 @@ def get_points(receipt_id):
         return jsonify({"points": points}), 200
 
     except Exception as e:
-        return jsonify({"Error": f"{str(e)}"}), 400
+        return jsonify({"Error": f"{str(e)}"}), 404
 
 
 if __name__ == "__main__":
