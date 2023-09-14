@@ -1,13 +1,21 @@
 import json
+import uuid
 
 from tests.base_case import BaseCase
 
 
 class TestGetReceipt(BaseCase):
     def test_random_receipt_id(self):
-        response = self.client.get("/receipts/25ff0520-f974-454e-a08d-ss/points")
-        # print(response.json())
+        #Test with an id that is not present
+        random_uuid = str(uuid.uuid4())
+        response = self.client.get(f"/receipts/{random_uuid}/points")
         self.assertEqual(404, response.status_code)
+
+    def test_invalid_receipt_id(self):
+        #Test with an id that is invalid
+        random_uuid = "2144##"
+        response = self.client.get(f"/receipts/{random_uuid}/points")
+        self.assertEqual(404, response.status_code)    
 
     def test_successful_points1(self):
         payload = json.dumps(
