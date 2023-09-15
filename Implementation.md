@@ -21,6 +21,8 @@ The implementation consists of 3 parts.
 
 ## API
 The API layer has the required endpoints.
+- `/receipts/process` which accepts a POST request with receipt JSON and returns `receipt_id` for valid inputs.
+- `/receipts/{id}/points` which accepts a GET request and returns points if the `id` exists in the DB.
 
 ## Database
 I used SQLAlchemy library to create an in-memory SQLite DB. The tables **Receipts** and **Items** are also defined here. There are also some DB specific validation functions.
