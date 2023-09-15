@@ -25,7 +25,7 @@ The API layer has the required endpoints.
 - `/receipts/{id}/points` which accepts a GET request and returns points if the `id` exists in the DB.
 
 ## Database
-I used SQLAlchemy library to create an in-memory SQLite DB. The tables **Receipts** and **Items** are also defined here. There are also some DB specific validation functions.
+I used SQLAlchemy library to create an in-memory SQLite DB. The tables **Receipts** and **Items** are defined here based on `api.yml`. There are also some DB specific validation functions.
 
 ## Receipt Service
 This service is responsible for parsing the input, additional validations, calculating points and storing all the parsed data in the DB.
